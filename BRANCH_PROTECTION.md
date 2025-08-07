@@ -14,7 +14,18 @@ Este repositório deve ter as seguintes regras de proteção configuradas no bra
 main
 ```
 
-### Proteções Recomendadas
+### Configuração Simples (Apenas Bloquear Push Direto)
+Para bloquear commits diretos no main, configure apenas:
+
+- ✅ **"Require a pull request before merging"**
+  - Required number of approvals: 1
+- ✅ **"Restrict push access to specific people or teams"**
+  - Adicionar usuário: `edufesta`
+
+**Ignore outras opções** - não são necessárias para seu objetivo básico.
+
+### Proteções Avançadas (Opcional)
+Se desejar proteções mais robustas:
 - ✅ **Restrict pushes that create files larger than 100 MB**
 - ✅ **Require a pull request before merging**
   - ✅ Require approvals: 1
@@ -23,7 +34,6 @@ main
 - ✅ **Require status checks to pass before merging**
 - ✅ **Require branches to be up to date before merging**
 - ✅ **Require conversation resolution before merging**
-- ✅ **Restrict pushes that create files larger than specified limit**
 
 ### Restrições de Push
 - ✅ **Restrict push access to specific people or teams**
