@@ -109,8 +109,9 @@ class PDFConverter:
                     text = page.extract_text()
                     if text:
                         lines = text.split('\n')
+                        processed_lines = self._process_broken_lines(lines)
                         
-                        for line in lines:
+                        for line in processed_lines:
                             line = line.strip()
                             if not line:
                                 continue
@@ -149,6 +150,48 @@ class PDFConverter:
             
         return dataframes
     
+    def _process_broken_lines(self, lines: List[str]) -> List[str]:
+        """Processa linhas quebradas, unindo-as quando necessário"""
+        processed_lines = []
+        i = 0
+        
+        while i < len(lines):
+            current_line = lines[i].strip()
+            
+            # Se a linha atual começa com data/hora, pode ser uma linha de dados
+            if re.match(r'\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}', current_line):
+                # Verificar se a linha termina com "(-" (indicando quebra nas coordenadas)
+                if current_line.endswith('(-'):
+                    # Procurar a próxima linha que deve conter as coordenadas
+                    if i + 1 < len(lines):
+                        next_line = lines[i + 1].strip()
+                        # Se a próxima linha tem o padrão de coordenadas
+                        if re.match(r'-?\d+\.?\d*,-?\d+\.?\d*\)', next_line):
+                            # Unir as linhas removendo o "(-" e adicionando "("
+                            current_line = current_line[:-2] + ' (' + next_line
+                            i += 1  # Pular a próxima linha já processada
+                
+                # Verificar outros padrões de quebra (localidade longa)
+                elif not current_line.endswith(')') and i + 1 < len(lines):
+                    next_line = lines[i + 1].strip()
+                    # Se a próxima linha não começa com data/hora e não é cabeçalho
+                    if (not re.match(r'\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}', next_line) and 
+                        'Data/Hora' not in next_line and 
+                        next_line and 
+                        len(next_line) < 100):  # Evitar unir linhas muito longas
+                        
+                        # Se a próxima linha parece ser continuação (coordenadas ou endereço)
+                        if (re.search(r'\(-?\d+\.?\d*,-?\d+\.?\d*\)', next_line) or
+                            next_line.startswith('(') or
+                            re.match(r'-?\d+\.?\d*,-?\d+\.?\d*\)', next_line)):
+                            current_line += ' ' + next_line
+                            i += 1  # Pular a próxima linha já processada
+            
+            processed_lines.append(current_line)
+            i += 1
+        
+        return processed_lines
+
     def _parse_header(self, header_line: str) -> List[str]:
         """Parse do cabeçalho para identificar colunas"""
         # Para o formato específico: Data/Hora Placa Evento Vel Localidade Motorista
