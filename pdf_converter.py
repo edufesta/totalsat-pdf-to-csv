@@ -160,18 +160,35 @@ class PDFConverter:
             
             # Se a linha atual começa com data/hora, pode ser uma linha de dados
             if re.match(r'\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}', current_line):
-                # Verificar se a linha termina com "(-" (indicando quebra nas coordenadas)
+                # Verificar diferentes padrões de quebra
+                
+                # Padrão 1: linha termina com "(-" (coordenadas quebradas no início)
                 if current_line.endswith('(-'):
-                    # Procurar a próxima linha que deve conter as coordenadas
                     if i + 1 < len(lines):
                         next_line = lines[i + 1].strip()
-                        # Se a próxima linha tem o padrão de coordenadas
                         if re.match(r'-?\d+\.?\d*,-?\d+\.?\d*\)', next_line):
-                            # Unir as linhas removendo o "(-" e adicionando "("
                             current_line = current_line[:-2] + ' (' + next_line
-                            i += 1  # Pular a próxima linha já processada
+                            i += 1
                 
-                # Verificar outros padrões de quebra (localidade longa)
+                # Padrão 2: linha termina com "(-25.123,-" ou similar (coordenadas quebradas no meio)
+                elif re.search(r'\(-?\d+\.?\d*,-$', current_line):
+                    if i + 1 < len(lines):
+                        next_line = lines[i + 1].strip()
+                        # Se a próxima linha tem apenas a segunda coordenada
+                        if re.match(r'-?\d+\.?\d*\)$', next_line):
+                            current_line = current_line + next_line
+                            i += 1
+                
+                # Padrão 3: linha termina com coordenada incompleta (números + vírgula + traço)
+                elif re.search(r'\(-?\d+\.?\d*,-$', current_line):
+                    if i + 1 < len(lines):
+                        next_line = lines[i + 1].strip()
+                        # Verificar se a próxima linha completa a coordenada
+                        if re.match(r'-?\d+\.?\d*\)$', next_line):
+                            current_line = current_line + next_line
+                            i += 1
+                
+                # Padrão 4: outros tipos de quebra (localidade longa sem coordenadas completas)
                 elif not current_line.endswith(')') and i + 1 < len(lines):
                     next_line = lines[i + 1].strip()
                     # Se a próxima linha não começa com data/hora e não é cabeçalho
@@ -180,12 +197,13 @@ class PDFConverter:
                         next_line and 
                         len(next_line) < 100):  # Evitar unir linhas muito longas
                         
-                        # Se a próxima linha parece ser continuação (coordenadas ou endereço)
+                        # Se a próxima linha parece ser continuação
                         if (re.search(r'\(-?\d+\.?\d*,-?\d+\.?\d*\)', next_line) or
                             next_line.startswith('(') or
-                            re.match(r'-?\d+\.?\d*,-?\d+\.?\d*\)', next_line)):
+                            re.match(r'-?\d+\.?\d*,-?\d+\.?\d*\)', next_line) or
+                            re.match(r'-?\d+\.?\d*\)$', next_line)):  # Apenas segunda coordenada
                             current_line += ' ' + next_line
-                            i += 1  # Pular a próxima linha já processada
+                            i += 1
             
             processed_lines.append(current_line)
             i += 1
