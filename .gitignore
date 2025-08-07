@@ -138,10 +138,10 @@ dmypy.json
 *.swo
 
 # Project specific
-# Ignorar diretórios de entrada e saída
-sourcePdfs/
-output/
+# Ignorar apenas os arquivos dentro das pastas, mas manter as pastas
+sourcePdfs/*
+output/*
 
-# Manter os exemplos mas ignorar outros arquivos de saída temporários
-# output/*.csv
-# output/*.xlsx
+# Manter os arquivos .gitkeep para preservar as pastas vazias
+!sourcePdfs/.gitkeep
+!output/.gitkeep
