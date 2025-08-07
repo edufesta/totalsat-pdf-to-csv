@@ -1,0 +1,63 @@
+name: "Pull Request Template"
+description: "Template padrão para Pull Requests"
+title: "[FEATURE/FIX/DOCS] Título descritivo"
+labels: []
+assignees: 
+  - edufesta
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📋 Descrição
+        
+        Descreva brevemente as mudanças implementadas.
+        
+  - type: textarea
+    id: changes
+    attributes:
+      label: "Mudanças Realizadas"
+      description: "Liste as principais mudanças"
+      placeholder: |
+        - Corrigido bug na extração de coordenadas
+        - Adicionado novo padrão de quebra de linha
+        - Melhorado tratamento de erros
+    validations:
+      required: true
+      
+  - type: checkboxes
+    id: testing
+    attributes:
+      label: "Testes Realizados"
+      description: "Marque os testes que foram executados"
+      options:
+        - label: "Testado com PDFs de exemplo"
+          required: true
+        - label: "Executado script de validação (test_coordinates.py)"
+          required: true
+        - label: "Verificado logs de erro"
+          required: false
+        - label: "Testado casos extremos"
+          required: false
+          
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Tipo de Mudança"
+      description: "Que tipo de mudança este PR representa?"
+      options:
+        - "🐛 Bug Fix"
+        - "✨ Nova Funcionalidade"
+        - "📝 Documentação"
+        - "🔧 Manutenção/Refatoração"
+        - "⚡ Melhoria de Performance"
+      default: 0
+    validations:
+      required: true
+      
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Informações Adicionais"
+      description: "Qualquer informação adicional relevante"
+      placeholder: "Screenshots, logs, dependências afetadas, etc."

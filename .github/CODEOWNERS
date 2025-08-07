@@ -1,0 +1,15 @@
+# Code Owners
+# Este arquivo define quem deve revisar mudanças em diferentes partes do projeto
+
+# Regra global - Eduardo Festa deve revisar todas as mudanças
+* @edufesta
+
+# Arquivos críticos - requerem aprovação explícita
+/pdf_converter.py @edufesta
+/requirements.txt @edufesta
+/.gitignore @edufesta
+/README.md @edufesta
+
+# Configurações do repositório
+/.github/ @edufesta
+/BRANCH_PROTECTION.md @edufesta
